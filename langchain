@@ -1,0 +1,37 @@
+### 2. **`notebook.ipynb`**
+
+```python
+# 📓 Jupyter Notebook for PDF Question Answering using LangChain and OpenAI
+
+# Step 1: Install Libraries
+# Uncomment this line to install the dependencies in the notebook
+# %pip install -qU langchain-openai pypdf
+
+# Step 2: Import Required Libraries
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_openai import OpenAIEmbeddings
+
+# Step 3: Load the PDF
+file_path = "pdfs/sample.pdf"  # Add your PDF file path here
+loader = PyPDFLoader(file_path)
+
+# Asynchronously load all pages from the PDF
+pages = [page async for page in loader.alazy_load()]
+
+# Step 4: Inspect First Page Content
+print(f"Page 0 Metadata: {pages[0].metadata}\n")
+print(f"Page 0 Content: {pages[0].page_content[:300]}...\n")
+
+# Step 5: Convert Pages to Embeddings and Store in Vector Store
+vector_store = InMemoryVectorStore.from_documents(pages, OpenAIEmbeddings())
+
+# Step 6: Perform Similarity Search
+query = "What is LayoutParser?"  # Example query
+docs = vector_store.similarity_search(query, k=2)
+
+# Step 7: Print the Results
+for doc in docs:
+    print(f'Page {doc.metadata["page"]}: {doc.page_content[:300]}...\n')
+
+# End of the Notebook
